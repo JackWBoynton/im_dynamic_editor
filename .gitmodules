@@ -1,3 +1,9 @@
 [submodule "external/imgui_bundle"]
 	path = external/imgui_bundle
 	url = https://github.com/JackWBoynton/imgui_bundle.git
+[submodule "external/imgrid"]
+	path = external/imgrid
+	url = https://github.com/jackwboynton/imgrid.git
+[submodule "external/nlohmann_json"]
+	path = external/nlohmann_json
+	url = https://github.com/nlohmann/json

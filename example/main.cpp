@@ -14,6 +14,7 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "dynamic_editor/api/dynamic_editor.hpp"
+#include "imgrid.h"
 #include "imgui.h"
 #include "implot.h"
 #include <stdio.h>
@@ -93,6 +94,7 @@ int main(int, char **) {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImPlot::CreateContext();
+  ImGrid::CreateContext();
   ImGuiIO &io = ImGui::GetIO();
   (void)io;
   io.ConfigFlags |=

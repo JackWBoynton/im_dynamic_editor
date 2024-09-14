@@ -4,7 +4,21 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
+#include <set>
+
 namespace dynamic_editor::api {
+
+namespace impl {
+static std::vector<nodes::NodeFactory> s_factories{};
+void RegisterNodeType(const nodes::NodeFactory &factory) {
+  s_factories.push_back(factory);
+}
+
+} // namespace impl
+
+const std::vector<nodes::NodeFactory> &GetNodeFactories() {
+  return impl::s_factories;
+}
 
 void DynamicEditor::RenderWindowed() {
   if (ImGui::Begin("Dynamic Editor")) {
