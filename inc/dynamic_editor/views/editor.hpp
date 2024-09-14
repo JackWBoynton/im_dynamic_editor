@@ -17,12 +17,10 @@ namespace dynamic_editor::views {
 
 class Editor {
 public:
-  Editor(nodes::NodeHolder &nodes) : m_Nodes(nodes) {}
+  Editor(std::shared_ptr<nodes::NodeHolder> &nodes) : m_Nodes(nodes) {}
 
   void RenderWindowed();
   void Render();
-
-  void SetNodes(nodes::NodeHolder &nodes) { m_Nodes = nodes; }
 
 private:
   void DrawContextMenus();
@@ -41,7 +39,7 @@ private:
       }(),
       ImNodes::DestroyContext};
 
-  nodes::NodeHolder m_Nodes;
+  std::shared_ptr<nodes::NodeHolder> m_Nodes;
   std::list<nodes::Node *> m_EndNodes;
   std::list<nodes::Link> m_Links;
   int m_RightClickedId = -1;

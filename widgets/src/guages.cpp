@@ -6,6 +6,8 @@
 
 #include <implot.h>
 
+#include <dynamic_editor/utils/imgui_extras.hpp>
+
 #include "guages.hpp"
 
 using namespace ImGui;
@@ -81,6 +83,10 @@ bool SimpleGuage(const char *label, float value, float min, float max,
     return false;
   }
 
+  if (min == max) {
+    return false;
+  }
+
   bool hovered, held;
   bool pressed = ButtonBehavior(total_bb, id, &hovered, &held,
                                 ImGuiButtonFlags_MouseButtonRight);
@@ -107,6 +113,20 @@ bool SimpleGuage(const char *label, float value, float min, float max,
            (val - min) / (max - min) * (end_angle - start_angle) * IM_PI;
   };
 
+  float angle_min = lerper(min);
+  float angle_max = lerper(max);
+  if (angle_min > angle_max) {
+    std::swap(angle_min, angle_max);
+  }
+  if (angle_min == angle_max) {
+    angle_max += 2 * IM_PI;
+  }
+  if (angle_max - angle_min < IM_PI / 6) {
+    return false;
+  }
+
+  // validate that our color map has the same max
+
   auto color_ring_thickness = thickness / threshold_indicator_div;
   auto color_ring_radius = radius;
 
@@ -114,9 +134,18 @@ bool SimpleGuage(const char *label, float value, float min, float max,
   float current_angle = start_angle * IM_PI;
   for (const auto &[key, color] : colorMap.Map) {
     float next_angle = lerper(key);
+    if (next_angle > angle_max) {
+      continue;
+    }
+    if (current_angle < angle_min) {
+      continue;
+    }
+    if (next_angle == current_angle) {
+      continue;
+    }
     window->DrawList->PathClear();
     window->DrawList->PathArcTo(center, color_ring_radius, current_angle,
-                                next_angle);
+                                next_angle, 32);
     window->DrawList->PathStroke(color, ImDrawFlags_None, color_ring_thickness);
     current_angle = next_angle;
   }
@@ -133,6 +162,9 @@ bool SimpleGuage(const char *label, float value, float min, float max,
   // add the current values bar of the correct color and angle
   float current_angle_value =
       std::max(start_angle * IM_PI, std::min(end_angle * IM_PI, lerper(value)));
+  if (std::abs(current_angle_value - start_angle * IM_PI) < 0.01f) {
+    return false;
+  }
   window->DrawList->PathClear();
   window->DrawList->PathArcTo(center, value_ring_radius, start_angle * IM_PI,
                               current_angle_value);

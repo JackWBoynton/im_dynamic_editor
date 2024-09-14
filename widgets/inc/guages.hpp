@@ -48,23 +48,37 @@ public:
                                               {100, IM_COL32(255, 0, 0, 255)}};
     memcpy(label, name.c_str(), std::min(static_cast<int>(name.size()), 256));
   }
+  void CheckForErrors() override {
+    if (GetTOnInput<float>(1) == GetTOnInput<float>(2)) {
+      SetError("Min and Max cannot be the same");
+    }
+    if (GetTOnInput<float>(1) > GetTOnInput<float>(2)) {
+      SetError("Min cannot be greater than Max");
+    }
+
+    if (GetTOnInput<float>(0) < GetTOnInput<float>(1)) {
+      SetWarning("Value is less than Min");
+    }
+    if (GetTOnInput<float>(0) > GetTOnInput<float>(2)) {
+      SetWarning("Value is greater than Max");
+    }
+  }
   void DrawEditorNode() override {
     Node::DrawEditorNode(); // adds title bar
+    ImGui::SetNextItemWidth(50);
     ImGui::InputText("Label", label, 256);
-    ImGui::InputFloat("Min Value", &min);
   }
+
   void DrawViewerNodeContent() override {
-    widgets::guages::SimpleGuage(label, value, min, max, colorMap, format,
-                                 radius, thickness, start_angle, end_angle,
-                                 threshold_indicator_div);
+    widgets::guages::SimpleGuage(
+        label, GetTOnInput<float>(0), GetTOnInput<float>(1),
+        GetTOnInput<float>(2), colorMap, format, radius, thickness, start_angle,
+        end_angle, threshold_indicator_div);
   }
   void Process() override {}
 
 private:
   char label[256];
-  float value{50};
-  float min{0};
-  float max{100};
   widgets::guages::GuageColorMap colorMap;
   const char *format = "%.2f";
   float radius{200};

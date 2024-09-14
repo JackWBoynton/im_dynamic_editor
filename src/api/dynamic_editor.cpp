@@ -21,13 +21,15 @@ const std::vector<nodes::NodeFactory> &GetNodeFactories() {
 }
 
 void DynamicEditor::RenderWindowed() {
+  ImGui::SetNextWindowSize(ImVec2(1280, 720), ImGuiCond_FirstUseEver);
   if (ImGui::Begin("Dynamic Editor")) {
-
+    m_nodes->ResetSelectedNodes();
     ConfigureDockspace();
     ImGui::DockSpace(m_dockspace_id, ImVec2(-1, -1), ImGuiDockNodeFlags_None,
                      &m_dockspace_wc);
     m_viewer.RenderWindowed();
     m_editor.RenderWindowed();
+    m_inspector.RenderWindowed();
   }
   ImGui::End();
 }
@@ -40,14 +42,18 @@ void DynamicEditor::ConfigureDockspace() {
     ImGui::DockBuilderRemoveNode(m_dockspace_id);
     ImGui::DockBuilderAddNode(m_dockspace_id, ImGuiDockNodeFlags_None);
 
+    // 3 columns 0.4, 0.4, 0.2
+
     auto dock_main_id = m_dockspace_id;
     auto dock_id_left = ImGui::DockBuilderSplitNode(
-        dock_main_id, ImGuiDir_Left, 0.2f, nullptr, &dock_main_id);
-    auto dock_id_right = ImGui::DockBuilderSplitNode(
-        dock_main_id, ImGuiDir_Right, 0.2f, nullptr, &dock_main_id);
+        dock_main_id, ImGuiDir_Left, 0.4, nullptr, &dock_main_id);
+    auto dock_id_center = ImGui::DockBuilderSplitNode(
+        dock_main_id, ImGuiDir_Left, 0.4, nullptr, &dock_main_id);
+    auto dock_id_right = dock_main_id;
 
     ImGui::DockBuilderDockWindow("Dynamic Editor Editor", dock_id_left);
-    ImGui::DockBuilderDockWindow("Dynamic Editor Viewer", dock_id_right);
+    ImGui::DockBuilderDockWindow("Dynamic Editor Viewer", dock_id_center);
+    ImGui::DockBuilderDockWindow("Dynamic Editor Inspector", dock_id_right);
     ImGui::DockBuilderFinish(m_dockspace_id);
   }
 }

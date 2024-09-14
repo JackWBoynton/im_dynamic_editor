@@ -1,6 +1,7 @@
 
 #include <dynamic_editor/nodes/attribute.hpp>
 #include <dynamic_editor/nodes/node.hpp>
+#include <dynamic_editor/utils/imgui_extras.hpp>
 
 #include <atomic>
 #include <cmath>
@@ -14,6 +15,15 @@ namespace dynamic_editor::nodes {
 
 int Node::s_Id = 1;
 static std::atomic<bool> s_interrupted;
+
+void NodeHolder::SelectNode(const int id) {
+  for (auto &node : Nodes) {
+    if (node->GetId() == id) {
+      SelectedNodes.insert(node);
+      break;
+    }
+  }
+}
 
 void Node::Interrupt() { s_interrupted = true; }
 
@@ -54,7 +64,7 @@ void Node::WrapDrawNode() {
   }
 }
 
-auto Node::GetValueOnInput(size_t index) -> Attribute::ValueType const & {
+auto Node::GetValueOnInput(size_t index) -> Attribute::ValueType & {
   auto *attribute = this->GetConnectedInputAttribute(index);
   auto &output_data = [&]() -> Attribute::ValueType & {
     if (attribute != nullptr) {

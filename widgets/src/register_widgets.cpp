@@ -2,10 +2,14 @@
 #include <dynamic_editor/api/dynamic_editor.hpp>
 
 #include <guages.hpp>
+#include <inputs.hpp>
 
 void RegisterWidgets() {
   dynamic_editor::api::RegisterNodeType<SimpleGuageNode>(
       "Visualizations", "Simple Guage", "A simple guage widget");
+
+  dynamic_editor::api::RegisterNodeType<FloatSliderNode>(
+      "Inputs", "Float Slider", "A simple float slider widget");
 }
 
 struct AutoRegisterWidgets {

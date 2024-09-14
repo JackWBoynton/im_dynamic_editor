@@ -13,10 +13,12 @@
 
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "codicons.hpp"
 #include "dynamic_editor/api/dynamic_editor.hpp"
 #include "imgrid.h"
 #include "imgui.h"
 #include "implot.h"
+#include "misc/freetype/imgui_freetype.h"
 #include <stdio.h>
 #define GL_SILENCE_DEPRECATION
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -141,6 +143,19 @@ int main(int, char **) {
   // ImFont* font =
   // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f,
   // nullptr, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != nullptr);
+  io.Fonts->AddFontDefault();
+  // load codicons
+  ImFontConfig config;
+  config.MergeMode = true;
+  config.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_Bold;
+  config.FontBuilderFlags &= ~ImGuiFreeTypeBuilderFlags_Monochrome |
+                             ImGuiFreeTypeBuilderFlags_MonoHinting;
+  config.GlyphOffset.y = 11.0f;
+  config.GlyphOffset.x = -1.0f;
+  static const ImWchar icons_ranges[] = {ICON_MIN_VS, ICON_MAX_VS};
+  io.Fonts->AddFontFromMemoryCompressedTTF(codicon_compressed_data,
+                                           codicon_compressed_size, 28.0f,
+                                           &config, icons_ranges);
 
   // Our state
   bool show_demo_window = true;

@@ -6,10 +6,24 @@
 namespace dynamic_editor::views {
 
 void Viewer::Render() {
-  if (!m_Nodes)
-    return;
-  for (auto &node : *m_Nodes)
-    node->DrawViewerNode();
+  for (auto &node : m_Nodes->Nodes) {
+    if (!node->ShouldRenderViewer())
+      continue;
+    ImGrid::BeginEntry(node->GetId());
+    {
+      ImGrid::BeginEntryTitleBar();
+      ImGui::Text("%s", node->GetTitle().c_str());
+      node->RenderErrors();
+      ImGrid::EndEntryTitleBar();
+
+      if (!node->GetHasError())
+        node->DrawViewerNodeContent();
+    }
+    ImGrid::EndEntry();
+
+    node->ClearError();
+    node->ClearWarning();
+  }
 }
 
 void Viewer::RenderWindowed() {

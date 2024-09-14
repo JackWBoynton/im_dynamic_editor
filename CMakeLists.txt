@@ -38,6 +38,8 @@ endif()
 # Create the main library target
 add_library(im_dynamic_editor_lib)
 
+find_package(fmt REQUIRED)
+
 if(IM_DYNAMIC_EDITOR_ADD_BUNDLED_WIDGETS)
   # Add the widgets static library
   add_library(widgets STATIC)
@@ -48,8 +50,10 @@ if(IM_DYNAMIC_EDITOR_ADD_BUNDLED_WIDGETS)
 
   # Add include directories and link dependencies
   target_include_directories(
-    widgets PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/widgets/inc"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/inc" ${IMGUI_INCLUDES})
+    widgets
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/widgets/inc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/inc" ${IMGUI_INCLUDES}
+            ${CMAKE_CURRENT_SOURCE_DIR}/external/codicons/)
 
   target_link_libraries(widgets PRIVATE ${IMGUI_LIBRARIES})
   target_sources(widgets PRIVATE ${WIDGET_SOURCES})
@@ -65,11 +69,12 @@ target_sources(im_dynamic_editor_lib PRIVATE ${SOURCES})
 
 # Include directories and link libraries
 target_include_directories(
-  im_dynamic_editor_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc
-                               ${IMGUI_INCLUDES})
+  im_dynamic_editor_lib
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc ${IMGUI_INCLUDES}
+         ${CMAKE_CURRENT_SOURCE_DIR}/external/codicons/)
 
 target_link_libraries(im_dynamic_editor_lib PUBLIC ${IMGUI_LIBRARIES}
-                                                   ${LIB_LIBS})
+                                                   ${LIB_LIBS} fmt::fmt)
 
 # If building the example
 if(IM_DYNAMIC_EDITOR_EXAMPLE)

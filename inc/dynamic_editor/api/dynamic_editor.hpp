@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dynamic_editor/views/editor.hpp>
+#include <dynamic_editor/views/inspector.hpp>
 #include <dynamic_editor/views/viewer.hpp>
 
 #include <dynamic_editor/nodes/node.hpp>
@@ -37,8 +38,8 @@ void RegisterNodeType(std::string const &cat, std::string const &name,
 class DynamicEditor {
 public:
   DynamicEditor()
-      : m_nodes(std::make_shared<std::vector<std::shared_ptr<nodes::Node>>>()),
-        m_editor(m_nodes), m_viewer(m_nodes) {}
+      : m_nodes(std::make_shared<nodes::NodeHolder>()), m_editor(m_nodes),
+        m_viewer(m_nodes), m_inspector(m_nodes) {}
 
   void Render();
   void RenderWindowed();
@@ -50,9 +51,10 @@ private:
   ImGuiWindowClass m_dockspace_wc;
   ImGuiWindowClass m_dockspace_sub_wc;
 
-  nodes::NodeHolder m_nodes{};
+  std::shared_ptr<nodes::NodeHolder> m_nodes{};
   views::Editor m_editor;
   views::Viewer m_viewer;
+  views::Inspector m_inspector;
 };
 
 } // namespace dynamic_editor::api

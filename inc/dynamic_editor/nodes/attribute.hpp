@@ -4,6 +4,8 @@
 #include <string>
 #include <variant>
 
+#include "imgui.h"
+
 namespace dynamic_editor::nodes {
 class Node;
 
@@ -37,11 +39,33 @@ public:
 
   static void SetIdCounter(int id);
 
-  auto GetInputValue() -> ValueType & { return m_InputValue; }
-  auto GetOutputValue() -> ValueType & { return m_OutputValue; }
+  auto GetInputValue() -> ValueType & { return m_DefaultValue; }
+  auto GetOutputValue() -> ValueType & {
+    if (!std::holds_alternative<std::monostate>(m_OutputValue))
+      return m_OutputValue;
+    return m_DefaultValue;
+  }
 
-  void ResetInputValue() { m_InputValue = std::monostate{}; }
   void ResetOutputValue() { m_OutputValue = std::monostate{}; }
+
+  void Render() {
+    std::visit(
+        [this](auto &value) {
+          ImGui::PushItemWidth(100);
+          using T = std::decay_t<decltype(value)>;
+          if constexpr (std::is_same_v<T, float>) {
+            ImGui::InputScalar(GetName().c_str(), ImGuiDataType_Float, &value);
+          } else if constexpr (std::is_same_v<T, int>) {
+            ImGui::InputScalar(GetName().c_str(), ImGuiDataType_S64, &value);
+          } else if constexpr (std::is_same_v<T, bool>) {
+            ImGui::Checkbox(GetName().c_str(), &value);
+          } else {
+            printf("asdf\n");
+            ImGui::Text("%s", GetName().c_str());
+          }
+        },
+        m_DefaultValue);
+  }
 
 private:
   int m_Id;
@@ -52,7 +76,7 @@ private:
 
   Node *m_ParentNode = nullptr;
 
-  ValueType m_InputValue;
+  ValueType m_DefaultValue;
   ValueType m_OutputValue;
 
   friend class Node;

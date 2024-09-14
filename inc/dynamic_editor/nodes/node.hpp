@@ -2,6 +2,9 @@
 #pragma once
 
 #include <dynamic_editor/nodes/attribute.hpp>
+#include <dynamic_editor/utils/imgui_extras.hpp>
+
+#include "codicons.hpp"
 
 #include <cstddef>
 #include <functional>
@@ -22,7 +25,13 @@ namespace dynamic_editor::nodes {
 class Node;
 using NodeFactoryFunc = std::function<std::shared_ptr<Node>()>;
 
-using NodeHolder = std::shared_ptr<std::vector<std::shared_ptr<Node>>>;
+struct NodeHolder {
+  std::vector<std::shared_ptr<Node>> Nodes;
+  std::set<std::shared_ptr<Node>> SelectedNodes;
+
+  void SelectNode(const int id);
+  void ResetSelectedNodes() { SelectedNodes.clear(); }
+};
 
 struct NodeFactory {
   std::string Cat;
@@ -60,19 +69,51 @@ public:
 
   void WrapDrawNode();
 
-  virtual void DrawEditorNode() {}
-
-  virtual void DrawViewerNodeContent() = 0;
-  virtual void DrawViewerNode() {
-    ImGrid::BeginEntry(m_Id);
-    {
-      ImGrid::BeginEntryTitleBar();
-      ImGui::Text("%s", m_Title.c_str());
-      ImGrid::EndEntryTitleBar();
-      DrawViewerNodeContent();
-    }
-    ImGrid::EndEntry();
+  virtual void DrawCommonProperties() {
+    ImGui::InputText("Title", m_Title);
+    ImGui::Checkbox("Render Viewer Node", &m_ShouldRenderViewer);
   }
+
+  void DrawProperties() {
+    ImGui::BeginSubWindow(GetTitle().c_str());
+    DrawCommonProperties();
+    ImGui::SeparatorText("Properties");
+    DrawPropertiesContent();
+    ImGui::EndSubWindow();
+  }
+
+  bool &ShouldRenderViewer() { return m_ShouldRenderViewer; }
+
+  virtual void DrawPropertiesContent() {}
+
+  virtual void DrawEditorNode() {}
+  virtual void DrawViewerNodeContent() = 0;
+
+  virtual void CheckForErrors() {}
+  virtual void RenderErrors() {
+    if (GetHasError()) {
+      ImGui::SameLine();
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+      ImGui::Text(ICON_VS_ERROR);
+      ImGui::PopStyleColor();
+      if (ImGui::BeginItemTooltip()) {
+        ImGui::Text("%s", GetError().c_str());
+        ImGui::EndTooltip();
+      }
+    }
+    if (GetHasWarning()) {
+      ImGui::SameLine();
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 0, 1));
+      ImGui::Text(ICON_VS_WARNING);
+      ImGui::PopStyleColor();
+      if (ImGui::BeginItemTooltip()) {
+        ImGui::Text("%s", GetWarning().c_str());
+        ImGui::EndTooltip();
+      }
+    }
+  }
+
+  // only renders content if there is no error
   virtual void Process() = 0;
   virtual void Dump(nlohmann::json &data) const {}
   virtual void Load(nlohmann::json const &data) {}
@@ -89,7 +130,7 @@ public:
     return m_Attributes;
   }
 
-  auto GetValueOnInput(size_t index) -> Attribute::ValueType const &;
+  auto GetValueOnInput(size_t index) -> Attribute::ValueType &;
   template <typename T> auto GetTOnInput(size_t index, T *value) -> bool {
     auto const &v = this->GetValueOnInput(index);
     if (auto *p = std::get_if<T>(&v)) {
@@ -99,6 +140,22 @@ public:
 
     return false;
   }
+  template <typename T> auto GetTOnInput(size_t index) -> T {
+    auto const &v = this->GetValueOnInput(index);
+    if (auto *p = std::get_if<T>(&v)) {
+      return *p;
+    }
+    return T{};
+  }
+
+  template <typename T> T *GetTPtrOnInput(size_t index) {
+    auto &v = this->GetValueOnInput(index);
+    if (auto *p = std::get_if<T>(&v)) {
+      return p;
+    }
+    return nullptr;
+  }
+
   void SetFloatOnOutput(size_t index, float value);
   void SetBoolOnOutput(size_t index, bool value);
 
@@ -130,6 +187,16 @@ public:
   void SetStatefulState() { m_ShouldUpdate = true; }
   [[nodiscard]] auto GetShouldUpdate() const -> bool { return m_ShouldUpdate; }
 
+  bool GetHasError() const { return !m_Error.empty(); }
+  std::string GetError() const { return m_Error; }
+  void SetError(std::string const &error) { m_Error = error; }
+  void ClearError() { m_Error.clear(); }
+
+  bool GetHasWarning() const { return !m_Warning.empty(); }
+  std::string GetWarning() const { return m_Warning; }
+  void SetWarning(std::string const &warning) { m_Warning = warning; }
+  void ClearWarning() { m_Warning.clear(); }
+
   struct NodeError {
     Node *NodePtr;
     std::string Message;
@@ -147,6 +214,9 @@ protected:
   std::string m_CurrentError;
   bool m_ShouldUpdate{true};
   std::set<size_t> m_ProcessedInputs;
+  std::string m_Error;
+  std::string m_Warning;
+  bool m_ShouldRenderViewer{true};
 
   static int s_Id;
 
