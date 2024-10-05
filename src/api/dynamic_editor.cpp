@@ -24,30 +24,34 @@ void DynamicEditor::RenderWindowed() {
   ImGui::SetNextWindowSize(ImVec2(1280, 720), ImGuiCond_FirstUseEver);
 
   if (ImGui::Begin("Dynamic Editor", nullptr, ImGuiWindowFlags_MenuBar)) {
-    if (ImGui::BeginMenuBar()) {
-      if (ImGui::BeginMenu("View")) {
-        if (ImGui::MenuItem("Editor Open", "", m_show_editor)) {
-          m_show_editor = !m_show_editor;
-        }
-        if (ImGui::MenuItem("Viewer Open", "", m_show_viewer)) {
-          m_show_viewer = !m_show_viewer;
-        }
-        if (ImGui::MenuItem("Inspector Open", "", m_show_inspector)) {
-          m_show_inspector = !m_show_inspector;
-        }
-        ImGui::EndMenu();
-      }
-      ImGui::EndMenuBar();
-    }
-    m_nodes->ResetSelectedNodes();
-    ConfigureDockspace();
-    ImGui::DockSpace(m_dockspace_id, ImVec2(-1, -1), ImGuiDockNodeFlags_None,
-                     &m_dockspace_wc);
-    m_viewer.RenderWindowed(m_show_viewer);
-    m_editor.RenderWindowed(m_show_editor);
-    m_inspector.RenderWindowed(m_show_inspector);
+    Render();
   }
   ImGui::End();
+}
+
+void DynamicEditor::Render() {
+  if (ImGui::BeginMenuBar()) {
+    if (ImGui::BeginMenu("View")) {
+      if (ImGui::MenuItem("Editor Open", "", m_show_editor)) {
+        m_show_editor = !m_show_editor;
+      }
+      if (ImGui::MenuItem("Viewer Open", "", m_show_viewer)) {
+        m_show_viewer = !m_show_viewer;
+      }
+      if (ImGui::MenuItem("Inspector Open", "", m_show_inspector)) {
+        m_show_inspector = !m_show_inspector;
+      }
+      ImGui::EndMenu();
+    }
+    ImGui::EndMenuBar();
+  }
+  m_nodes->ResetSelectedNodes();
+  ConfigureDockspace();
+  ImGui::DockSpace(m_dockspace_id, ImVec2(-1, -1), ImGuiDockNodeFlags_None,
+                   &m_dockspace_wc);
+  m_viewer.RenderWindowed(m_show_viewer);
+  m_editor.RenderWindowed(m_show_editor);
+  m_inspector.RenderWindowed(m_show_inspector);
 }
 
 void DynamicEditor::ConfigureDockspace() {

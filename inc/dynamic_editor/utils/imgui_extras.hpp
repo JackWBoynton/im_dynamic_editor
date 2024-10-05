@@ -5,7 +5,9 @@
 
 #include <string>
 
-namespace ImGui {
+using namespace ImGui;
+
+namespace ImGuiExtras {
 
 void BeginSubWindow(char const *label, ImVec2 size = ImVec2(0, 0),
                     ImGuiChildFlags flags = ImGuiChildFlags_None);
@@ -18,4 +20,4 @@ bool InputText(char const *label, std::u8string &buffer,
                ImGuiInputTextFlags flags = ImGuiInputTextFlags_None);
 bool InputText(char const *label, std::string &buffer,
                ImGuiInputTextFlags flags = ImGuiInputTextFlags_None);
-} // namespace ImGui
+} // namespace ImGuiExtras

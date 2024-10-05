@@ -6,7 +6,7 @@
 #include <dynamic_editor/views/editor.hpp>
 #include <dynamic_editor/views/inspector.hpp>
 
-#include "codicons.hpp"
+#include "codicons_internal.hpp"
 
 #include <memory>
 #include <string>

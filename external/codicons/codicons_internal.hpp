@@ -3,6 +3,8 @@
 // https://raw.githubusercontent.com/microsoft/vscode-codicons/main/dist/codicon.css
 // for use with
 // https://github.com/microsoft/vscode-codicons/blob/main/dist/codicon.ttf
+#if !defined CODICONS
+#define CODICONS
 #pragma once
 
 #define ICON_MIN_VS 0xea60
@@ -3668,3 +3670,4 @@ static const unsigned int codicon_compressed_data[61288 / 4] = {
 #define ICON_VS_DIFF_MULTIPLE "\xee\xb0\xa3"                           // U+ec23
 #define ICON_VS_SURROUND_WITH "\xee\xb0\xa4"                           // U+ec24
 #define ICON_VS_SHARE "\xee\xb0\xa5"                                   // U+ec25
+#endif

@@ -4,7 +4,7 @@
 #include <dynamic_editor/nodes/attribute.hpp>
 #include <dynamic_editor/utils/imgui_extras.hpp>
 
-#include "codicons.hpp"
+#include "codicons_internal.hpp"
 
 #include <cstddef>
 #include <functional>
@@ -70,16 +70,16 @@ public:
   void WrapDrawNode();
 
   virtual void DrawCommonProperties() {
-    ImGui::InputText("Title", m_Title);
+    ImGuiExtras::InputText("Title", m_Title);
     ImGui::Checkbox("Render Viewer Node", &m_ShouldRenderViewer);
   }
 
   void DrawProperties() {
-    ImGui::BeginSubWindow(GetTitle().c_str());
+    ImGuiExtras::BeginSubWindow(GetTitle().c_str());
     DrawCommonProperties();
     ImGui::SeparatorText("Properties");
     DrawPropertiesContent();
-    ImGui::EndSubWindow();
+    ImGuiExtras::EndSubWindow();
   }
 
   bool &ShouldRenderViewer() { return m_ShouldRenderViewer; }

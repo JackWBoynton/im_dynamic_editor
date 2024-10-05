@@ -9,7 +9,9 @@
 
 #include <fmt/format.h>
 
-namespace ImGui {
+using namespace ImGui;
+
+namespace ImGuiExtras {
 
 int UpdateStringSizeCallback(ImGuiInputTextCallbackData *data) {
   if (data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
@@ -66,16 +68,16 @@ void TextUnformattedCentered(char const *text) {
 
 bool InputText(char const *label, std::u8string &buffer,
                ImGuiInputTextFlags flags) {
-  return InputText(label, reinterpret_cast<char *>(buffer.data()),
-                   buffer.size() + 1,
-                   ImGuiInputTextFlags_CallbackResize | flags,
-                   UpdateStringSizeCallback, &buffer);
+  return ImGui::InputText(label, reinterpret_cast<char *>(buffer.data()),
+                          buffer.size() + 1,
+                          ImGuiInputTextFlags_CallbackResize | flags,
+                          UpdateStringSizeCallback, &buffer);
 }
 bool InputText(char const *label, std::string &buffer,
                ImGuiInputTextFlags flags) {
-  return InputText(label, buffer.data(), buffer.size() + 1,
-                   ImGuiInputTextFlags_CallbackResize | flags,
-                   UpdateStringSizeCallback, &buffer);
+  return ImGui::InputText(label, buffer.data(), buffer.size() + 1,
+                          ImGuiInputTextFlags_CallbackResize | flags,
+                          UpdateStringSizeCallback, &buffer);
 }
 
-} // namespace ImGui
+} // namespace ImGuiExtras

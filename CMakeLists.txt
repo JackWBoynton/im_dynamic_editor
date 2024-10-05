@@ -14,25 +14,20 @@ if(NOT DEFINED IM_DYNAMIC_EDITOR_STANDALONE_PROJECT)
 endif()
 
 # CMake options
-option(IM_DYNAMIC_EDITOR_EXAMPLE "Build example"
-       ${IM_DYNAMIC_EDITOR_STANDALONE_PROJECT})
+option(IM_DYNAMIC_EDITOR_EXAMPLE "Build example" ${IM_DYNAMIC_EDITOR_STANDALONE_PROJECT})
 option(IM_DYNAMIC_EDITOR_USE_BUNDLED_LIBS "Use the bundled dependencies" ON)
-option(IM_DYNAMIC_EDITOR_ADD_BUNDLED_WIDGETS
-       "Register all default bundled widgets" ON)
+option(IM_DYNAMIC_EDITOR_ADD_BUNDLED_WIDGETS "Register all default bundled widgets" ON)
 
 if(IM_DYNAMIC_EDITOR_USE_BUNDLED_LIBS)
   # Add bundled imgui and dependencies
   add_subdirectory(external/imgui_bundle)
   add_subdirectory(external/nlohmann_json)
 
-  set(IMGUI_INCLUDES
-      imgui_all_includes
-      ${CMAKE_CURRENT_SOURCE_DIR}/external/nlohmann_json/single_include)
-  set(IMGUI_LIBRARIES imgui_imgui imgui_implot imgui_imnodes imgrid
-                      imgui_custom nlohmann_json::nlohmann_json)
+  set(IMGUI_INCLUDES imgui_all_includes ${CMAKE_CURRENT_SOURCE_DIR}/external/nlohmann_json/single_include)
+  set(IMGUI_LIBRARIES imgui_imgui imgui_implot imnodes imgrid imgui_custom nlohmann_json::nlohmann_json)
 else()
-  # TODO: Add external dependency configuration here
-  message(FATAL_ERROR "External dependencies not yet configured!")
+  set(IMGUI_INCLUDES imgui_all_includes ${NLOHMANN_JSON_INCLUDES})
+  set(IMGUI_LIBRARIES imgui_all_includes ${NLOHMANN_JSON_LIBRARIES})
 endif()
 
 # Create the main library target
@@ -45,15 +40,11 @@ if(IM_DYNAMIC_EDITOR_ADD_BUNDLED_WIDGETS)
   add_library(widgets STATIC)
 
   # Collect all source files in the widgets folder
-  file(GLOB_RECURSE WIDGET_SOURCES CONFIGURE_DEPENDS
-       "${CMAKE_CURRENT_SOURCE_DIR}/widgets/src/*.cpp")
+  file(GLOB_RECURSE WIDGET_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/widgets/src/*.cpp")
 
   # Add include directories and link dependencies
-  target_include_directories(
-    widgets
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/widgets/inc"
-            "${CMAKE_CURRENT_SOURCE_DIR}/inc" ${IMGUI_INCLUDES}
-            ${CMAKE_CURRENT_SOURCE_DIR}/external/codicons/)
+  target_include_directories(widgets PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/widgets/inc" "${CMAKE_CURRENT_SOURCE_DIR}/inc" ${IMGUI_INCLUDES}
+                                            ${CMAKE_CURRENT_SOURCE_DIR}/external/codicons/)
 
   target_link_libraries(widgets PRIVATE ${IMGUI_LIBRARIES})
   target_sources(widgets PRIVATE ${WIDGET_SOURCES})
@@ -63,18 +54,14 @@ if(IM_DYNAMIC_EDITOR_ADD_BUNDLED_WIDGETS)
 endif()
 
 # Collect the main source files for the library
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
-     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 target_sources(im_dynamic_editor_lib PRIVATE ${SOURCES})
 
 # Include directories and link libraries
-target_include_directories(
-  im_dynamic_editor_lib
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc ${IMGUI_INCLUDES}
-         ${CMAKE_CURRENT_SOURCE_DIR}/external/codicons/)
+target_include_directories(im_dynamic_editor_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc ${IMGUI_INCLUDES} ${CMAKE_CURRENT_SOURCE_DIR}/external/codicons/
+                                                        ${NLOHMANN_JSON_INCLUDES})
 
-target_link_libraries(im_dynamic_editor_lib PUBLIC ${IMGUI_LIBRARIES}
-                                                   ${LIB_LIBS} fmt::fmt)
+target_link_libraries(im_dynamic_editor_lib PRIVATE ${LIB_LIBS} ${IMGUI_INCLUDES} fmt::fmt ${NLOHMANN_JSON_LIBRARIES})
 
 # If building the example
 if(IM_DYNAMIC_EDITOR_EXAMPLE)
