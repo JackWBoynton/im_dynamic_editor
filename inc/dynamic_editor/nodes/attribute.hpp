@@ -39,7 +39,6 @@ public:
 
   static void SetIdCounter(int id);
 
-  auto GetInputValue() -> ValueType & { return m_DefaultValue; }
   auto GetOutputValue() -> ValueType & {
     if (!std::holds_alternative<std::monostate>(m_OutputValue))
       return m_OutputValue;
@@ -52,6 +51,7 @@ public:
     std::visit(
         [this](auto &value) {
           ImGui::PushItemWidth(100);
+
           using T = std::decay_t<decltype(value)>;
           if constexpr (std::is_same_v<T, float>) {
             ImGui::InputScalar(GetName().c_str(), ImGuiDataType_Float, &value);
@@ -60,7 +60,6 @@ public:
           } else if constexpr (std::is_same_v<T, bool>) {
             ImGui::Checkbox(GetName().c_str(), &value);
           } else {
-            printf("asdf\n");
             ImGui::Text("%s", GetName().c_str());
           }
         },

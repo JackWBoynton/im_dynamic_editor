@@ -14,8 +14,10 @@
 #include "imgui.h"
 
 namespace dynamic_editor::views {
-void Editor::RenderWindowed() {
-  if (ImGui::Begin("Dynamic Editor Editor", nullptr, ImGuiWindowFlags_MenuBar))
+void Editor::RenderWindowed(bool &show) {
+  if (!show)
+    return;
+  if (ImGui::Begin("Dynamic Editor Editor", &show, ImGuiWindowFlags_MenuBar))
     Render();
   ImGui::End();
 }
@@ -87,6 +89,7 @@ void Editor::Render() {
     ImNodes::EndNodeEditor();
   }
   ImGui::EndChild();
+
   if (ImGui::BeginDragDropTarget()) {
     if (ImGuiPayload const *payload =
             ImGui::AcceptDragDropPayload("INPUT DATA SOURCE")) {
@@ -190,6 +193,19 @@ void Editor::Render() {
       EraseNodes(selectedNodes);
     }
   }
+
+  // processing
+  if (m_thread.joinable()) {
+    if (ImGui::Button(ICON_VS_DEBUG_START)) {
+      ProcessNodes();
+    }
+  } else {
+    if (ImGui::Button(ICON_VS_DEBUG_STOP)) {
+      m_continuousProcessing = false;
+    }
+  }
+  ImGui::SameLine();
+  ImGui::Checkbox("Continuous Processing", &m_continuousProcessing);
 }
 
 void Editor::EraseLink(int id) {
@@ -235,6 +251,27 @@ void Editor::EraseNodes(std::vector<int> const &ids) {
 
     m_Nodes->Nodes.erase(node);
   }
+}
+
+void Editor::ProcessNodes() {
+  if (m_thread.joinable())
+    m_thread.join();
+
+  m_thread = std::thread([this]() {
+    m_CurrNodeError = std::nullopt;
+
+    do {
+      for (auto &endNode : m_EndNodes) {
+        endNode->ResetOutputValue();
+
+        for (auto &node : m_Nodes->Nodes) {
+          node->ResetProcessedInputs();
+        }
+
+        endNode->Process();
+      }
+    } while (m_continuousProcessing);
+  });
 }
 
 void Editor::DrawNode(nodes::Node &node) {

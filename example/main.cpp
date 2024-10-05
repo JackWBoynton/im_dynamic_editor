@@ -232,6 +232,7 @@ int main(int, char **) {
     }
 
     s_editor.RenderWindowed();
+    ImGrid::RenderDebug();
 
     // 3. Show another simple window.
     if (show_another_window) {

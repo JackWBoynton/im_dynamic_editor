@@ -65,6 +65,10 @@ void Node::WrapDrawNode() {
 }
 
 auto Node::GetValueOnInput(size_t index) -> Attribute::ValueType & {
+  // check if we have already processed this input
+  if (m_ProcessedInputs.count(index)) {
+    return this->GetAttribute(index).GetOutputValue();
+  }
   auto *attribute = this->GetConnectedInputAttribute(index);
   auto &output_data = [&]() -> Attribute::ValueType & {
     if (attribute != nullptr) {

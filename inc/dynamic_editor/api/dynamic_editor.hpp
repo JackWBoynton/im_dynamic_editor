@@ -55,6 +55,10 @@ private:
   views::Editor m_editor;
   views::Viewer m_viewer;
   views::Inspector m_inspector;
+
+  bool m_show_editor{true};
+  bool m_show_viewer{true};
+  bool m_show_inspector{true};
 };
 
 } // namespace dynamic_editor::api

@@ -25,7 +25,7 @@ bool SimpleGuage(const char *label, float value, float min, float max,
 
 class TimeseriesPlotNode : public Node {
 public:
-  SimpleGuageNode(std::string name)
+  TimeseriesPlotNode(std::string name)
       : Node(name, {
                        {Attribute::IO::In, Attribute::Type::Float, "Value"},
                    }) {
@@ -56,4 +56,3 @@ private:
   float end_angle{2.25f};
   float threshold_indicator_div{6.0f};
 };
-

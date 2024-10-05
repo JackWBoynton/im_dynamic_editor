@@ -9,7 +9,7 @@ class Inspector {
 public:
   Inspector(std::shared_ptr<nodes::NodeHolder> &nodes) : m_Nodes(nodes) {}
 
-  void RenderWindowed();
+  void RenderWindowed(bool &show);
   void Render();
 
   bool &GetWindowOpen() { return m_WindowOpen; }

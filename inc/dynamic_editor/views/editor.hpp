@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <thread>
 #include <vector>
 
 #include <dynamic_editor/nodes/link.hpp>
@@ -19,7 +20,7 @@ class Editor {
 public:
   Editor(std::shared_ptr<nodes::NodeHolder> &nodes) : m_Nodes(nodes) {}
 
-  void RenderWindowed();
+  void RenderWindowed(bool &show);
   void Render();
 
 private:
@@ -27,6 +28,8 @@ private:
   void DrawNode(nodes::Node &node);
   void EraseNodes(const std::vector<int> &ids);
   void EraseLink(int id);
+
+  void ProcessNodes();
 
   std::unique_ptr<ImNodesContext, void (*)(ImNodesContext *)> m_Context = {
       [] {
@@ -49,6 +52,9 @@ private:
   ImVec2 m_NewDroppedNodeMousePos;
 
   std::optional<nodes::Node::NodeError> m_CurrNodeError;
+
+  std::thread m_thread;
+  bool m_continuousProcessing = false;
 };
 
 } // namespace dynamic_editor::views

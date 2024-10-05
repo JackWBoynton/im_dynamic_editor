@@ -18,6 +18,7 @@ public:
                        {Attribute::IO::Out, Attribute::Type::Float, "Value"},
                    }) {}
   void DrawViewerNodeContent() override {
+    ImGui::SetNextItemWidth(100.0f);
     if (m_IsVertical)
       ImGui::VSliderFloat(GetTitle().c_str(), ImVec2(18, 160),
                           GetTPtrOnInput<float>(2), GetTOnInput<float>(0),
@@ -46,13 +47,11 @@ public:
   void DrawPropertiesContent() override {
     ImGui::InputFloat("Min", GetTPtrOnInput<float>(0));
     ImGui::InputFloat("Max", GetTPtrOnInput<float>(1));
-
     ImGui::Text("Value: %f", GetTOnInput<float>(2));
-
     ImGui::Checkbox("Vertical", &m_IsVertical);
   }
 
-  void Process() override {}
+  void Process() override { SetFloatOnOutput(2, GetTOnInput<float>(2)); }
 
 private:
   bool m_IsVertical = false;

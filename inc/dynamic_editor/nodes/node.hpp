@@ -58,7 +58,7 @@ enum NodeState_ {
 
 class Node {
 public:
-  Node(std::string title, std::vector<Attribute> attributes);
+  Node(std::string title, std::vector<Attribute> input_attributes);
   virtual ~Node() = default;
 
   [[nodiscard]] auto GetId() const -> int { return m_Id; }

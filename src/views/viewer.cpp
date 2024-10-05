@@ -26,9 +26,11 @@ void Viewer::Render() {
   }
 }
 
-void Viewer::RenderWindowed() {
+void Viewer::RenderWindowed(bool &show) {
+  if (!show)
+    return;
   ImGrid::PushStyleVar(ImGridStyleVar_GridSpacing, 70.0f);
-  if (ImGui::Begin("Dynamic Editor Viewer")) {
+  if (ImGui::Begin("Dynamic Editor Viewer", &show)) {
     ImGrid::BeginGrid();
     { Render(); }
     ImGrid::EndGrid();

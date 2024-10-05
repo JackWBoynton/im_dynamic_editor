@@ -15,8 +15,10 @@ void Inspector::Render() {
   }
 }
 
-void Inspector::RenderWindowed() {
-  if (ImGui::Begin("Dynamic Editor Inspector")) {
+void Inspector::RenderWindowed(bool &show) {
+  if (!show)
+    return;
+  if (ImGui::Begin("Dynamic Editor Inspector", &show)) {
     ImGui::Text("Inspector");
     Render();
   }

@@ -8,7 +8,7 @@ class Viewer {
 public:
   Viewer(std::shared_ptr<nodes::NodeHolder> &nodes) : m_Nodes(nodes) {}
 
-  void RenderWindowed();
+  void RenderWindowed(bool &show);
   void Render();
 
 private:

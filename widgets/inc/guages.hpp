@@ -16,13 +16,11 @@ namespace guages {
 struct GuageColorMap {
   std::map<float, ImU32> Map;
 
-  static bool Render();
-
   GuageColorMap(std::initializer_list<std::pair<const float, ImU32>> init)
       : Map(init) {}
   GuageColorMap() = default;
 
-  static GuageColorMap *Editing;
+  static void Render(GuageColorMap &colorMap);
 };
 
 bool SimpleGuage(const char *label, float value, float min, float max,
@@ -63,6 +61,16 @@ public:
       SetWarning("Value is greater than Max");
     }
   }
+
+  void DrawPropertiesContent() override {
+
+    ImGui::InputFloat("Min", GetTPtrOnInput<float>(1));
+    ImGui::InputFloat("Max", GetTPtrOnInput<float>(2));
+
+    ImGui::SeparatorText("Color Map");
+    widgets::guages::GuageColorMap::Render(colorMap);
+  }
+
   void DrawEditorNode() override {
     Node::DrawEditorNode(); // adds title bar
     ImGui::SetNextItemWidth(50);
@@ -82,7 +90,7 @@ private:
   widgets::guages::GuageColorMap colorMap;
   const char *format = "%.2f";
   float radius{200};
-  float thickness{12};
+  float thickness{20};
   float start_angle{0.75f};
   float end_angle{2.25f};
   float threshold_indicator_div{6.0f};

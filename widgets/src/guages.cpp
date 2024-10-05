@@ -6,6 +6,8 @@
 
 #include <implot.h>
 
+#include "codicons.hpp"
+
 #include <dynamic_editor/utils/imgui_extras.hpp>
 
 #include "guages.hpp"
@@ -16,41 +18,58 @@ namespace widgets {
 
 namespace guages {
 
-GuageColorMap *GuageColorMap::Editing = nullptr;
+void GuageColorMap::Render(GuageColorMap &colorMap) {
+  std::set<float> delete_keys;
+  std::vector<std::pair<float, ImU32>>
+      updated_entries; // Collect updated entries
+  int i = 0;
 
-bool GuageColorMap::Render() {
-  bool set = false;
-  if (BeginPopup("ColorMap Popup")) {
+  for (auto it = colorMap.Map.begin(); it != colorMap.Map.end(); ++it) {
+    float key = it->first; // Local copy of the key
+    auto &color = it->second;
+    ImGui::PushID(i++);
 
-    if (GuageColorMap::Editing == nullptr) {
-      EndPopup();
-      return false;
+    if (ImGui::Button(ICON_VS_REMOVE)) {
+      delete_keys.insert(key);
+      ImGui::PopID();
+      continue;
     }
 
-    for (auto &[key, color] : GuageColorMap::Editing->Map) {
-      PushID(key);
-      PushItemWidth(100);
-      // Color pickers do not take ImU32 so we need to convert them to vec4 and
-      // back
-      auto color_vec4 = ImColor(color).Value;
-      if (ColorPicker3("Color", &color_vec4.x)) {
-        color = ImColor(color_vec4);
+    ImGui::SameLine();
+    ImGui::PushItemWidth(100);
+
+    auto color_vec4 = ImColor(color).Value;
+    if (ImGui::ColorPicker3("Color", &color_vec4.x)) {
+      color = ImColor(color_vec4);
+    }
+
+    ImGui::SameLine();
+
+    float new_key = key;
+    if (ImGui::InputFloat("Value", &new_key)) {
+      if (new_key != key) {
+        delete_keys.insert(key); // Mark old key for deletion
+        updated_entries.emplace_back(new_key, color);
       }
-      PopItemWidth();
-      SameLine();
-      InputFloat("Value", (float *)&key);
-      PopID();
     }
 
-    if (Button("Confirm")) {
-      set = true;
-      CloseCurrentPopup();
-    }
-
-    EndPopup();
+    ImGui::PopItemWidth();
+    ImGui::PopID();
   }
 
-  return set;
+  ImGui::Separator();
+
+  if (ImGui::Button(ICON_VS_ADD)) {
+    colorMap.Map[99999] = IM_COL32(0, 0, 0, 0);
+  }
+
+  for (const auto &key : delete_keys) {
+    colorMap.Map.erase(key);
+  }
+
+  for (const auto &entry : updated_entries) {
+    colorMap.Map[entry.first] = entry.second;
+  }
 }
 
 bool SimpleGuage(const char *label, float value, float min, float max,
@@ -92,8 +111,6 @@ bool SimpleGuage(const char *label, float value, float min, float max,
                                 ImGuiButtonFlags_MouseButtonRight);
   if (pressed) {
     MarkItemEdited(id);
-    GuageColorMap::Editing = &colorMap;
-    ImGui::OpenPopup("ColorMap Popup", ImGuiPopupFlags_AnyPopup);
   }
 
   auto label_pos =
