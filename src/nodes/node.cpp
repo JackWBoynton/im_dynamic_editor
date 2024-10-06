@@ -102,6 +102,17 @@ void Node::SetFloatOnOutput(size_t index, float value) {
   attribute.GetOutputValue() = value;
 }
 
+void Node::SetMonostateOnOutput(size_t index) {
+  if (index >= this->GetAttributes().size()) {
+    ThrowNodeError("Attribute index out of bounds!");
+  }
+  auto &attribute = this->GetAttributes()[index];
+  if (attribute.GetIo() != Attribute::IO::Out) {
+    ThrowNodeError("Tried to set output data of an input attribute!");
+  }
+  attribute.GetOutputValue() = std::monostate{};
+}
+
 void Node::SetBoolOnOutput(size_t index, bool value) {
   if (index >= this->GetAttributes().size()) {
     ThrowNodeError("Attribute index out of bounds!");

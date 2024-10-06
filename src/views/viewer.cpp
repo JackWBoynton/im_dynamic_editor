@@ -11,10 +11,12 @@ void Viewer::Render() {
       continue;
     ImGrid::BeginEntry(node->GetId());
     {
-      ImGrid::BeginEntryTitleBar();
-      ImGui::Text("%s", node->GetTitle().c_str());
-      node->RenderErrors();
-      ImGrid::EndEntryTitleBar();
+      if (node->ShouldRenderTitleBar()) {
+        ImGrid::BeginEntryTitleBar();
+        ImGui::Text("%s", node->GetTitle().c_str());
+        node->RenderErrors();
+        ImGrid::EndEntryTitleBar();
+      }
 
       if (!node->GetHasError())
         node->DrawViewerNodeContent();
@@ -29,6 +31,12 @@ void Viewer::Render() {
 void Viewer::RenderWindowed(bool &show) {
   if (!show)
     return;
+
+  for (auto &node : m_Nodes->Nodes) {
+    if (ImGrid::IsNodeSelected(node->GetId()))
+      m_Nodes->SelectNode(node->GetId());
+  }
+
   ImGrid::PushStyleVar(ImGridStyleVar_GridSpacing, 70.0f);
   if (ImGui::Begin("Dynamic Editor Viewer", &show)) {
     ImGrid::BeginGrid();

@@ -39,11 +39,7 @@ public:
 
   static void SetIdCounter(int id);
 
-  auto GetOutputValue() -> ValueType & {
-    if (!std::holds_alternative<std::monostate>(m_OutputValue))
-      return m_OutputValue;
-    return m_DefaultValue;
-  }
+  auto GetOutputValue() -> ValueType & { return m_OutputValue; }
 
   void ResetOutputValue() { m_OutputValue = std::monostate{}; }
 

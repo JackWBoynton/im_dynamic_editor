@@ -72,10 +72,12 @@ public:
   virtual void DrawCommonProperties() {
     ImGuiExtras::InputText("Title", m_Title);
     ImGui::Checkbox("Render Viewer Node", &m_ShouldRenderViewer);
+    ImGui::Checkbox("Show Title Bar", &m_ShowTitleBar);
   }
 
   void DrawProperties() {
-    ImGuiExtras::BeginSubWindow(GetTitle().c_str());
+    ImGuiExtras::BeginSubWindow(
+        (GetTitle() + "###" + std::to_string(GetId())).c_str());
     DrawCommonProperties();
     ImGui::SeparatorText("Properties");
     DrawPropertiesContent();
@@ -87,7 +89,8 @@ public:
   virtual void DrawPropertiesContent() {}
 
   virtual void DrawEditorNode() {}
-  virtual void DrawViewerNodeContent() = 0;
+  virtual void DrawViewerNodeContent() {};
+  virtual bool ShouldRenderTitleBar() const { return m_ShowTitleBar; }
 
   virtual void CheckForErrors() {}
   virtual void RenderErrors() {
@@ -140,12 +143,12 @@ public:
 
     return false;
   }
-  template <typename T> auto GetTOnInput(size_t index) -> T {
+  template <typename T> auto GetTOnInput(size_t index) -> std::optional<T> {
     auto const &v = this->GetValueOnInput(index);
     if (auto *p = std::get_if<T>(&v)) {
       return *p;
     }
-    return T{};
+    return std::nullopt;
   }
 
   template <typename T> T *GetTPtrOnInput(size_t index) {
@@ -158,6 +161,7 @@ public:
 
   void SetFloatOnOutput(size_t index, float value);
   void SetBoolOnOutput(size_t index, bool value);
+  void SetMonostateOnOutput(size_t index);
 
   void ResetOutputValue() {
     for (auto &attribute : m_Attributes) {
@@ -217,6 +221,7 @@ protected:
   std::string m_Error;
   std::string m_Warning;
   bool m_ShouldRenderViewer{true};
+  bool m_ShowTitleBar{true};
 
   static int s_Id;
 
