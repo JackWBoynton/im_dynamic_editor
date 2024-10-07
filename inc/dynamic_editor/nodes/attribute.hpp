@@ -39,11 +39,23 @@ public:
 
   static void SetIdCounter(int id);
 
-  auto GetOutputValue() -> ValueType & { return m_OutputValue; }
+  auto GetOutputValue() -> ValueType & {
+    if (GetConnectedAttributes().empty())
+      return m_DefaultValue;
+    return m_OutputValue;
+  }
 
   void ResetOutputValue() { m_OutputValue = std::monostate{}; }
 
   void Render() {
+    ValueType &value = GetOutputValue();
+    bool disabled = false;
+    if (GetConnectedAttributes().empty()) {
+      value = m_DefaultValue;
+    } else {
+      ImGui::BeginDisabled();
+      disabled = true;
+    }
     std::visit(
         [this](auto &value) {
           ImGui::PushItemWidth(100);
@@ -59,7 +71,10 @@ public:
             ImGui::Text("%s", GetName().c_str());
           }
         },
-        m_DefaultValue);
+        value);
+
+    if (disabled)
+      ImGui::EndDisabled();
   }
 
 private:

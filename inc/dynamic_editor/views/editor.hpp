@@ -14,6 +14,8 @@
 #include "imnodes.h"
 #include "imnodes_internal.h"
 
+#include <nlohmann/json.hpp>
+
 namespace dynamic_editor::views {
 
 class Editor {
@@ -22,6 +24,11 @@ public:
 
   void RenderWindowed(bool &show);
   void Render();
+
+  std::shared_ptr<nodes::Node> LoadNode(const nlohmann::json &data);
+  void LoadNodes(const nlohmann::json &data);
+  nlohmann::json DumpNode(nodes::Node *node) const;
+  nlohmann::json DumpNodes() const;
 
 private:
   void DrawContextMenus();

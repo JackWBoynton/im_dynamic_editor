@@ -9,7 +9,12 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
+#include <filesystem>
+#include <functional>
 #include <set>
+
+extern void OnDumpNodes(std::string const &content);
+extern nlohmann::json LoadNodesRequested();
 
 namespace dynamic_editor::api {
 
@@ -43,6 +48,9 @@ public:
 
   void Render();
   void RenderWindowed();
+
+  void LoadState(const nlohmann::json &state) { m_editor.LoadNodes(state); }
+  nlohmann::json DumpState() const { return m_editor.DumpNodes(); }
 
 private:
   void ConfigureDockspace();

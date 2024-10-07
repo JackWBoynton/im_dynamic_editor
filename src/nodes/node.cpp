@@ -65,10 +65,6 @@ void Node::WrapDrawNode() {
 }
 
 auto Node::GetValueOnInput(size_t index) -> Attribute::ValueType & {
-  // check if we have already processed this input
-  if (m_ProcessedInputs.count(index)) {
-    return this->GetAttribute(index).GetOutputValue();
-  }
   auto *attribute = this->GetConnectedInputAttribute(index);
   auto &output_data = [&]() -> Attribute::ValueType & {
     if (attribute != nullptr) {
@@ -80,6 +76,10 @@ auto Node::GetValueOnInput(size_t index) -> Attribute::ValueType & {
     }
     return this->GetAttribute(index).GetOutputValue();
   }();
+
+  if (std::holds_alternative<std::monostate>(output_data)) {
+    ThrowNodeError("Attribute not connected!");
+  }
 
   return output_data;
 }

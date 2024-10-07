@@ -118,8 +118,29 @@ public:
 
   // only renders content if there is no error
   virtual void Process() = 0;
-  virtual void Dump(nlohmann::json &data) const {}
-  virtual void Load(nlohmann::json const &data) {}
+  virtual void Dump(nlohmann::json &data) const {
+    data["shouldRenderViewer"] = m_ShouldRenderViewer;
+    data["showTitleBar"] = m_ShowTitleBar;
+    const auto &grid_position = ImGrid::GetEntryPosition(GetId());
+    data["grid"] = {
+        {"x", grid_position.x},
+        {"y", grid_position.y},
+        {"w", grid_position.w},
+        {"h", grid_position.h},
+    };
+  }
+  virtual void Load(nlohmann::json const &data) {
+    m_ShouldRenderViewer = data.at("shouldRenderViewer").get<bool>();
+    m_ShowTitleBar = data.at("showTitleBar").get<bool>();
+    ImGridPosition grid_position = {
+        data.at("grid").at("x").get<float>(),
+        data.at("grid").at("y").get<float>(),
+        data.at("grid").at("w").get<float>(),
+        data.at("grid").at("h").get<float>(),
+    };
+
+    ImGrid::SetEntryPosition(GetId(), grid_position);
+  }
 
   [[nodiscard]] auto GetTitle() const -> std::string { return m_Title; }
   void SetTitle(std::string const &title) { m_Title = title; }
@@ -134,6 +155,7 @@ public:
   }
 
   auto GetValueOnInput(size_t index) -> Attribute::ValueType &;
+
   template <typename T> auto GetTOnInput(size_t index, T *value) -> bool {
     auto const &v = this->GetValueOnInput(index);
     if (auto *p = std::get_if<T>(&v)) {
@@ -170,6 +192,7 @@ public:
   }
 
   void ResetProcessedInputs() { m_ProcessedInputs.clear(); }
+  virtual void Reset() {}
 
   static void SetIdCounter(int id);
 
