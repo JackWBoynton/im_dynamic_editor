@@ -1,11 +1,12 @@
+#define IMGUI_DEFINE_MATH_OPERATORS
 
 #include <dynamic_editor/utils/imgui_extras.hpp>
 
 #include "imgui.h"
 #include "imgui_internal.h"
 
-#include "implot.h"
-#include <implot_internal.h>
+#include "implot/implot.h"
+#include <implot/implot_internal.h>
 
 #include <fmt/format.h>
 
@@ -60,7 +61,7 @@ void TextUnformattedCentered(char const *text) {
   auto text_size = ImGui::CalcTextSize(draw_string.c_str());
 
   ImPlot::AddTextCentered(ImGui::GetWindowDrawList(),
-                          ImGui::GetCursorScreenPos() + available_space / 2 -
+                          ImGui::GetCursorScreenPos() + ImVec2(available_space.x / 2, available_space.y / 2) -
                               ImVec2(0, text_size.y / 2),
                           ImGui::GetColorU32(ImGuiCol_Text),
                           draw_string.c_str());

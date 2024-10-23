@@ -16,7 +16,10 @@ endif()
 # CMake options
 option(IM_DYNAMIC_EDITOR_EXAMPLE "Build example" ${IM_DYNAMIC_EDITOR_STANDALONE_PROJECT})
 option(IM_DYNAMIC_EDITOR_USE_BUNDLED_LIBS "Use the bundled dependencies" ON)
-option(IM_DYNAMIC_EDITOR_ADD_BUNDLED_WIDGETS "Register all default bundled widgets" ON)
+option(IM_DYNAMIC_EDITOR_ADD_BUNDLED_WIDGETS "Register all default bundled widgets" OFF)
+
+# Create the main library target
+add_library(im_dynamic_editor_lib)
 
 if(IM_DYNAMIC_EDITOR_USE_BUNDLED_LIBS)
   # Add bundled imgui and dependencies
@@ -26,12 +29,13 @@ if(IM_DYNAMIC_EDITOR_USE_BUNDLED_LIBS)
   set(IMGUI_INCLUDES imgui_all_includes ${CMAKE_CURRENT_SOURCE_DIR}/external/nlohmann_json/single_include)
   set(IMGUI_LIBRARIES imgui_imgui imgui_implot imnodes imgrid imgui_custom nlohmann_json::nlohmann_json)
 else()
-  set(IMGUI_INCLUDES imgui_all_includes ${NLOHMANN_JSON_INCLUDES})
-  set(IMGUI_LIBRARIES imgui_all_includes ${NLOHMANN_JSON_LIBRARIES})
+if (NOT DEFINED IM_DYNAMIC_EDITOR_IMGUI_TARGET_NAME OR NOT DEFINED IM_DYNAMIC_EDITOR_IMGRID_TARGET_NAME OR NOT DEFINED IM_DYNAMIC_EDITOR_IMNODES_TARGET_NAME)
+  find_package(imgui CONFIG REQUIRED)
+else()
+  target_link_libraries(im_dynamic_editor_lib PUBLIC ${IM_DYNAMIC_EDITOR_IMGUI_TARGET_NAME} ${IM_DYNAMIC_EDITOR_IMGRID_TARGET_NAME} ${IM_DYNAMIC_EDITOR_IMNODES_TARGET_NAME} implot)
+endif()
 endif()
 
-# Create the main library target
-add_library(im_dynamic_editor_lib)
 
 find_package(fmt REQUIRED)
 
