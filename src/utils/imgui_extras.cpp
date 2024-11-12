@@ -8,8 +8,6 @@
 #include "implot/implot.h"
 #include <implot/implot_internal.h>
 
-#include <fmt/format.h>
-
 using namespace ImGui;
 
 namespace ImGuiExtras {
@@ -29,7 +27,8 @@ void BeginSubWindow(char const *label, ImVec2 size, ImGuiChildFlags flags) {
   bool const has_menu_bar = !std::string_view(label).empty();
 
   PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0F);
-  if (BeginChild(fmt::format("{}##SubWindow", label).c_str(), size,
+  auto label = sprintf("%s##SubWindow", label);
+  if (BeginChild(label, size,
                  ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY | flags,
                  has_menu_bar ? ImGuiWindowFlags_MenuBar
                               : ImGuiWindowFlags_None)) {

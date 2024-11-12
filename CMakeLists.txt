@@ -37,8 +37,6 @@ endif()
 endif()
 
 
-find_package(fmt REQUIRED)
-
 if(IM_DYNAMIC_EDITOR_ADD_BUNDLED_WIDGETS)
   # Add the widgets static library
   add_library(widgets STATIC)
@@ -65,7 +63,7 @@ target_sources(im_dynamic_editor_lib PRIVATE ${SOURCES})
 target_include_directories(im_dynamic_editor_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc ${IMGUI_INCLUDES} ${CMAKE_CURRENT_SOURCE_DIR}/external/codicons/
                                                         ${NLOHMANN_JSON_INCLUDES})
 
-target_link_libraries(im_dynamic_editor_lib PRIVATE ${LIB_LIBS} ${IMGUI_INCLUDES} fmt::fmt ${NLOHMANN_JSON_LIBRARIES})
+target_link_libraries(im_dynamic_editor_lib PRIVATE ${LIB_LIBS} ${IMGUI_INCLUDES} ${NLOHMANN_JSON_LIBRARIES})
 
 # If building the example
 if(IM_DYNAMIC_EDITOR_EXAMPLE)
