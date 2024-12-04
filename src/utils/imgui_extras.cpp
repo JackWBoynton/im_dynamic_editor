@@ -27,8 +27,8 @@ void BeginSubWindow(char const *label, ImVec2 size, ImGuiChildFlags flags) {
   bool const has_menu_bar = !std::string_view(label).empty();
 
   PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0F);
-  auto label_s = sprintf("%s##SubWindow", label);
-  if (BeginChild(label_s, size,
+  auto label_s = std::string(label) + "##SubWindow";
+  if (BeginChild(label_s.c_str(), size,
                  ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY | flags,
                  has_menu_bar ? ImGuiWindowFlags_MenuBar
                               : ImGuiWindowFlags_None)) {
